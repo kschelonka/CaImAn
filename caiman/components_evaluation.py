@@ -260,7 +260,7 @@ def evaluate_components_CNN(A, dims, gSig, model_name:str=os.path.join(caiman_da
         os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
     os.environ["KERAS_BACKEND"] = "tensorflow"
-    from keras.models import model_from_json
+    from tensorflow.keras.models import model_from_json
 
     if loaded_model is None:
         if os.path.isfile(os.path.join(caiman_datadir(), model_name + ".json")):

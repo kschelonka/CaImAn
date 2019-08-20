@@ -35,7 +35,7 @@ import os
 import sys
 import time
 import gc
-import keras
+#import keras
 import logging
 
 from builtins import str
@@ -151,7 +151,7 @@ all_results = dict()
 
 # iterate over all datasets to be processed
 for ind_dataset in ID:
-    keras.backend.clear_session()
+    #keras.backend.clear_session()
     gc.collect()
     ffls = glob.glob(os.path.abspath(base_folder + params_movie[ind_dataset]['folder_name']) + '/*.mmap')
     ffls.sort()

@@ -290,8 +290,8 @@ class OnACID(object):
             loaded_model = None
             self.params.set('online', {'sniper_mode': False})
         else:
-            import keras
-            from keras.models import model_from_json
+            #import keras
+            from tensorflow.keras.models import model_from_json
             path = self.params.get('online', 'path_to_model').split(".")[:-1]
             json_path = ".".join(path + ["json"])
             model_path = ".".join(path + ["h5"])
@@ -301,9 +301,9 @@ class OnACID(object):
             json_file.close()
             loaded_model = model_from_json(loaded_model_json)
             loaded_model.load_weights(model_path)
-            opt = keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)
-            loaded_model.compile(loss=keras.losses.categorical_crossentropy,
-                                 optimizer=opt, metrics=['accuracy'])
+            #opt = keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)
+            #loaded_model.compile(loss=keras.losses.categorical_crossentropy,
+            #                     optimizer=opt, metrics=['accuracy'])
 
         self.loaded_model = loaded_model
 
