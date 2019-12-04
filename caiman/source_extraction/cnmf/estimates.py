@@ -922,7 +922,8 @@ class Estimates(object):
         dims = params.get('data', 'dims')
         gSig = params.get('init', 'gSig')
         min_cnn_thr = params.get('quality', 'min_cnn_thr')
-        predictions = evaluate_components_CNN(self.A, dims, gSig)[0]
+        predictions = evaluate_components_CNN(self.A, dims, gSig, 
+            model_name=params.get("online", "path_to_model"))[0]
         self.cnn_preds = predictions[:, neuron_class]
         self.idx_components = np.where(self.cnn_preds >= min_cnn_thr)[0]
         return self
@@ -968,6 +969,8 @@ class Estimates(object):
         """
         dims = imgs.shape[1:]
         opts = params.get_group('quality')
+        # TODO kschelon: this is a temporary workaround
+        model_path = params.get("online", "path_to_model")
         idx_components, idx_components_bad, SNR_comp, r_values, cnn_preds = \
             estimate_components_quality_auto(imgs, self.A, self.C, self.b, self.f, self.YrA,
                                              params.get('data', 'fr'),
@@ -980,7 +983,8 @@ class Estimates(object):
                                              thresh_cnn_min=opts['min_cnn_thr'],
                                              thresh_cnn_lowest=opts['cnn_lowest'],
                                              r_values_lowest=opts['rval_lowest'],
-                                             min_SNR_reject=opts['SNR_lowest'])
+                                             min_SNR_reject=opts['SNR_lowest'],
+                                             model_path=model_path)
         self.idx_components = idx_components.astype(int)
         self.idx_components_bad = idx_components_bad.astype(int)
         self.SNR_comp = SNR_comp

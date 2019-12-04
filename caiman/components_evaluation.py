@@ -519,7 +519,8 @@ def estimate_components_quality_auto(Y,
                                      thresh_cnn_lowest=0.1,
                                      thresh_fitness_delta=-20.,
                                      min_SNR_reject=0.5,
-                                     gSig_range=None) -> Tuple[np.array, np.array, float, float, float]:
+                                     gSig_range=None,
+                                     model_path=None) -> Tuple[np.array, np.array, float, float, float]:
     ''' estimates the quality of component automatically
 
     Args:
@@ -616,7 +617,7 @@ def estimate_components_quality_auto(Y,
                                                                                     r_values_min, r_values_lowest,
                                                                                     min_SNR, min_SNR_reject,
                                                                                     thresh_cnn_min, thresh_cnn_lowest,
-                                                                                    use_cnn, gSig_range)
+                                                                                    use_cnn, gSig_range, model_path=model_path)
 
     return idx_components, idx_components_bad, comp_SNR, r_values, cnn_values
 
@@ -636,6 +637,7 @@ def select_components_from_metrics(A,
                                    gSig_range=None,
                                    neuron_class=1,
                                    predictions=None,
+                                   model_path=None,
                                    **kwargs) -> Tuple[np.array, np.array, Any]:
     '''Selects components based on pre-computed metrics. For each metric
     space correlation, trace SNR, and CNN classifier both an upper and a lower
@@ -655,12 +657,12 @@ def select_components_from_metrics(A,
         # normally 1
         if gSig_range is None:
             if predictions is None:
-                predictions, _ = evaluate_components_CNN(A, dims, gSig)
+                predictions, _ = evaluate_components_CNN(A, dims, gSig, model_name=model_path)
                 predictions = predictions[:, neuron_class]
         else:
             predictions = np.zeros(len(r_values))
             for size_range in gSig_range:
-                predictions = np.maximum(predictions, evaluate_components_CNN(A, dims, size_range)[0][:, neuron_class])
+                predictions = np.maximum(predictions, evaluate_components_CNN(A, dims, size_range)[0][:, neuron_class], model_name=model_path)
 
         idx_components_cnn = np.where(predictions >= thresh_cnn_min)[0]
         bad_comps = np.where((r_values <= r_values_lowest) | (comp_SNR <= min_SNR_reject) |
