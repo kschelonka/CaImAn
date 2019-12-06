@@ -332,6 +332,64 @@ def save_place_holder(pars: List) -> str:
                        slices=slices)
 
 
+def save_memmap_generator(file_chunk_generator,
+                base_name: str = 'Yr',
+                resize_fact: Tuple = (1, 1, 1),
+                remove_init: int = 0,
+                idx_xy: Tuple = None,
+                order: str = 'F',
+                xy_shifts: Optional[List] = None,
+                is_3D: bool = False,
+                add_to_movie: float = 0,
+                border_to_0=0,
+                dview=None,
+                n_chunks: int = 100,
+                slices=None) -> str:
+    """quick workaround to save h5 file chunks without loading everything
+    into memory"""
+    logging.info('Distributing memory map over many files')
+    # Here we make a bunch of memmap files in the right order. Same parameters
+    fname_parts = save_memmap_each_generator(file_chunk_generator,
+                                        base_name=base_name,
+                                        order=order,
+                                        border_to_0=border_to_0,
+                                        dview=dview,
+                                        resize_fact=resize_fact,
+                                        remove_init=remove_init,
+                                        idx_xy=idx_xy,
+                                        xy_shifts=xy_shifts,
+                                        slices=slices,
+                                        add_to_movie=add_to_movie)
+    fname_new = cm.save_memmap_join(
+        fname_parts, base_name=base_name, dview=dview, n_chunks=n_chunks)
+    return fname_new
+
+
+def save_memmap_each_generator(file_chunk_generator: List[str],
+                     dview=None,
+                     base_name: str = None,
+                     resize_fact=(1, 1, 1),
+                     remove_init: int = 0,
+                     idx_xy=None,
+                     xy_shifts=None,
+                     add_to_movie: float = 0,
+                     border_to_0: int = 0,
+                     order: str = 'C',
+                     slices=None) -> List[str]:
+    """
+    quick workaround to use avoid loading h5 files into memory to save.
+    serially. fnames should be a generator object
+    """
+    fnames = []
+    for idx, f in enumerate(file_chunk_generator):
+        xy_shifts_ = xy_shifts[idx] if xy_shifts else None
+        slices = slices or [slice(0,None), slice(0, None), slice(0, None)]
+        pars = [f, base_name + '{:04d}'.format(idx), resize_fact,
+                remove_init, idx_xy, order, xy_shifts_,
+                add_to_movie, border_to_0, slices]
+        fnames.append(save_place_holder(pars))
+    return fnames
+
 #%%
 def save_memmap(filenames: List[str],
                 base_name: str = 'Yr',
